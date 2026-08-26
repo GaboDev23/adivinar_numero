@@ -6,6 +6,7 @@ VERDE = "\033[92m"
 AMARILLO = "\033[93m"
 AZUL = "\033[94m"
 CIAN = "\033[96m"
+MAGENTA = "\033[95m"
 
 print(f"{AZUL}================================{RESET}")
 print(F"""{AZUL}
@@ -17,7 +18,22 @@ nombre = input("¡Hola! ¿Cómo te llamas?\n")
 
 print(f"Hola {CIAN}{nombre}{RESET} 👋")
 
-max = random.randint(10, 100)
+while True:
+    dificultad = int(input(f"{MAGENTA}ELIGE LA DIFICULTAD:\n1. FACIL\n2. MEDIO\n3. DIFÍCIL\n4. MUY DIFÍCIL\n{RESET}"))
+    if dificultad == 1:
+        max = random.randint(2, 10)
+        break
+    elif dificultad == 2:
+        max = random.randint(10, 100)
+        break
+    elif dificultad == 3:
+        max = random.randint(10, 1000)
+        break
+    elif dificultad == 4:
+        max = random.randint(10, 10000)
+        break
+    else:
+        print(f"{ROJO}OPCIÓN INCORRECTA{RESET}")
 
 print(f"Estoy pensando en un número entre el 1 y el {max}")
 
@@ -31,7 +47,7 @@ nums = []
 while True:
     num = int(input("¿Cuál es el número?\n"))
 
-    if intentos == 5:
+    if intentos != 0 and intentos % 5 == 0:
         tipo = random.randint(1, 2)
         pista = -1
 
