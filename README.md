@@ -1,5 +1,3 @@
-Sí, mejor mantener **todo lo que ya tenías** y actualizarlo sin perder contenido. Te dejo una versión completa, lista para reemplazar tu `README.md`, conservando las secciones originales y agregando las funcionalidades nuevas.
-
 ````markdown
 # 🎯 Adivina el Número
 
