@@ -1,4 +1,4 @@
-````markdown
+```markdown
 # 🎯 Adivina el Número
 
 Un pequeño juego de consola desarrollado en **Python** donde el jugador debe adivinar un número secreto generado aleatoriamente.
