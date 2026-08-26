@@ -298,4 +298,3 @@ La idea es utilizar un proyecto práctico para aplicar los conceptos aprendidos 
 ## 👨‍💻 Autor
 
 **Gabriel**
-```
