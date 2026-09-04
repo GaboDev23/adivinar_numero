@@ -39,8 +39,11 @@ def mostrar_descartados(numeros_descartados):
         f"Números descartados: {nums_string}"
     )
 
+def calcular_puntos(puntos_base, intentos_restantes, pistas_usadas):
+    return puntos_base + (intentos_restantes * 100) - (pistas_usadas * 50)
 
-def jugar(maximo, max_intentos):
+
+def jugar(maximo, max_intentos, puntos_base):
     adivina = random.randint(1, maximo)
 
     print(
@@ -50,6 +53,7 @@ def jugar(maximo, max_intentos):
 
     intentos = 0
     numeros_descartados = []
+    cant_pistas = 0
 
     while True:
         num = validar_entrada(numeros_descartados, maximo)
@@ -60,22 +64,26 @@ def jugar(maximo, max_intentos):
         if num == adivina:
             mostrar_resultados(configuracion.VERDE, "¡Correcto! 🎉\n¡Ganaste!")
             mostrar_resultados(configuracion.VERDE, f"Lo lograste en {intentos} intentos.")
+            mostrar_resultados(configuracion.VERDE, f"Puntos: {calcular_puntos(puntos_base, max_intentos, cant_pistas)}")
             break
 
         numeros_descartados.append(num)
 
         if num > adivina:
-            mostrar_resultados(configuracion.ROJO, f"Incorrect, el número es menor.\nTe quedan {max_intentos} intentos.")
+            mostrar_resultados(configuracion.ROJO, f"Incorrecto, el número es menor.\nTe quedan {max_intentos} intentos.")
         else:
-            mostrar_resultados(configuracion.ROJO, f"Incorrect, el número es mayor.\nTe quedan {max_intentos} intentos.")
+            mostrar_resultados(configuracion.ROJO, f"Incorrecto, el número es mayor.\nTe quedan {max_intentos} intentos.")
             
         mostrar_descartados(numeros_descartados)
 
         if max_intentos == 0:
             mostrar_resultados(configuracion.ROJO, f"¡Perdiste!\nTe has quedado sin intentos.\nEl número era {adivina}")
+            mostrar_resultados(configuracion.ROJO, f"Puntos: {calcular_puntos(puntos_base, max_intentos, cant_pistas)}")
             break
 
         if intentos % 5 == 0:
             numeros_descartados = pistas.generar_pistas(adivina, maximo, num, numeros_descartados)
+
+            cant_pistas += 1
 
             mostrar_descartados(numeros_descartados)

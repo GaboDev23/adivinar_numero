@@ -2,7 +2,7 @@
 
 Un pequeño juego de consola desarrollado en **Python** donde el jugador debe adivinar un número secreto generado aleatoriamente.
 
-El proyecto fue creado como práctica de los fundamentos de Python, incorporando entrada de datos, variables, cadenas de texto, números aleatorios, estructuras de control, listas, debugging, diferentes niveles de dificultad, sistema de intentos, pistas, validación de entradas, funciones y colores en la consola.
+El proyecto fue creado como práctica de los fundamentos de Python, incorporando entrada de datos, variables, cadenas de texto, números aleatorios, estructuras de control, listas, debugging, diferentes niveles de dificultad, sistema de intentos, pistas, validación de entradas, funciones, modularización, colores en la consola y un sistema de puntuación.
 
 El proyecto comenzó como un juego sencillo y fue evolucionando progresivamente mediante la incorporación y refactorización de diferentes funcionalidades.
 
@@ -14,7 +14,7 @@ Al iniciar el juego:
 2. El jugador debe seleccionar un nivel de dificultad.
 3. Dependiendo de la dificultad seleccionada, se genera aleatoriamente un límite máximo.
 4. Se genera un número secreto entre `1` y el límite máximo.
-5. Dependiendo de la dificultad, se establece una cantidad máxima de intentos.
+5. Dependiendo de la dificultad, se establece una cantidad máxima de intentos y una puntuación base.
 6. El jugador intenta adivinar el número dentro del límite de intentos disponible.
 7. El programa indica si el número buscado es mayor o menor que el número introducido.
 8. Los números que ya no pueden ser la respuesta se almacenan como números descartados.
@@ -24,8 +24,10 @@ Al iniciar el juego:
 12. Si el jugador introduce texto en lugar de un número, se muestra un mensaje de error sin cerrar el programa.
 13. Cada 5 intentos, el programa proporciona una pista aleatoria.
 14. Las pistas también pueden agregar números a la lista de números descartados.
-15. Cuando el jugador encuentra el número secreto, se muestra un mensaje de victoria y la cantidad de intentos realizados.
-16. Si el jugador se queda sin intentos, pierde y el programa muestra cuál era el número secreto.
+15. Cada pista utilizada queda registrada para calcular posteriormente la puntuación.
+16. Cuando el jugador encuentra el número secreto, se muestra un mensaje de victoria y la cantidad de intentos realizados.
+17. Al finalizar la partida se calcula una puntuación teniendo en cuenta la dificultad, los intentos restantes y las pistas utilizadas.
+18. Si el jugador se queda sin intentos, pierde y el programa muestra cuál era el número secreto.
 
 La lógica del juego se encuentra separada en diferentes módulos para facilitar la organización y el mantenimiento del código.
 
@@ -48,10 +50,16 @@ AdivinaElNumero/
 
 Se encarga de iniciar el programa, mostrar el título, solicitar el nombre del jugador y gestionar la selección de dificultad.
 
-Una vez seleccionada una dificultad válida, obtiene el límite máximo y la cantidad de intentos y comienza la partida mediante:
+Una vez seleccionada una dificultad válida, obtiene el límite máximo, la cantidad de intentos y los puntos base:
 
 ```python
-juego.jugar(maximo, max_intentos)
+maximo, max_intentos, puntos_base = resultado
+```
+
+Posteriormente comienza la partida mediante:
+
+```python
+juego.jugar(maximo, max_intentos, puntos_base)
 ```
 
 ### `dificultad_juego.py`
@@ -62,7 +70,13 @@ Contiene la función:
 establecer_dificultad()
 ```
 
-Esta función determina aleatoriamente el límite máximo y establece la cantidad de intentos disponibles según la dificultad seleccionada.
+Esta función determina aleatoriamente el límite máximo, establece la cantidad de intentos disponibles y asigna una puntuación base según la dificultad seleccionada.
+
+Devuelve los tres valores:
+
+```python
+return maximo, max_intentos, puntos_base
+```
 
 ### `juego.py`
 
@@ -72,6 +86,7 @@ Contiene la lógica principal de la partida y varias funciones auxiliares:
 mostrar_resultados()
 validar_entrada()
 mostrar_descartados()
+calcular_puntos()
 jugar()
 ```
 
@@ -80,6 +95,8 @@ La función `validar_entrada()` se encarga de comprobar que el valor introducido
 La función `mostrar_descartados()` se encarga de ordenar y mostrar los números descartados.
 
 La función `mostrar_resultados()` centraliza la impresión de mensajes utilizando los colores definidos en `configuracion.py`.
+
+La función `calcular_puntos()` calcula la puntuación obtenida por el jugador utilizando la dificultad, los intentos restantes y las pistas utilizadas.
 
 ### `pistas.py`
 
@@ -99,17 +116,11 @@ Contiene los códigos ANSI utilizados para los colores de la terminal:
 
 ```python
 RESET = "\033[0m"
-
 ROJO = "\033[91m"
-
 VERDE = "\033[92m"
-
 AMARILLO = "\033[93m"
-
 AZUL = "\033[94m"
-
 CIAN = "\033[96m"
-
 MAGENTA = "\033[95m"
 ```
 
@@ -119,12 +130,12 @@ Esto permite reutilizar los mismos colores desde los diferentes módulos.
 
 Actualmente el juego cuenta con cuatro niveles de dificultad:
 
-| Dificultad     | Rango del límite máximo | Intentos |
-| -------------- | ----------------------- | -------- |
-| 🟢 Fácil       | Entre 2 y 10            | 5        |
-| 🟡 Medio       | Entre 10 y 100          | 8        |
-| 🟠 Difícil     | Entre 10 y 1.000        | 12       |
-| 🔴 Muy difícil | Entre 10 y 10.000       | 15       |
+| Dificultad     | Rango del límite máximo | Intentos | Puntos base |
+| -------------- | ----------------------: | -------: | ----------: |
+| 🟢 Fácil       |            Entre 2 y 10 |        5 |         500 |
+| 🟡 Medio       |          Entre 10 y 100 |        8 |       1.000 |
+| 🟠 Difícil     |        Entre 10 y 1.000 |       12 |       2.000 |
+| 🔴 Muy difícil |       Entre 10 y 10.000 |       15 |       4.000 |
 
 Tanto el límite máximo como el número secreto se generan aleatoriamente.
 
@@ -135,6 +146,8 @@ Estoy pensando en un número entre el 1 y el 8351. Tienes 15 intentos.
 ```
 
 El número secreto será generado aleatoriamente entre `1` y `8351`.
+
+Además, esta dificultad comienza con una puntuación base de `4000` puntos.
 
 Si el jugador introduce una opción que no existe, el programa muestra un mensaje de error y vuelve a solicitar la dificultad:
 
@@ -147,11 +160,11 @@ OPCIÓN INCORRECTA. Elige entre 1 y 4.
 Cada nivel de dificultad tiene una cantidad determinada de intentos disponibles.
 
 | Dificultad     | Intentos |
-| -------------- | -------- |
-| 🟢 Fácil       | 5        |
-| 🟡 Medio       | 8        |
-| 🟠 Difícil     | 12       |
-| 🔴 Muy difícil | 15       |
+| -------------- | -------: |
+| 🟢 Fácil       |        5 |
+| 🟡 Medio       |        8 |
+| 🟠 Difícil     |       12 |
+| 🔴 Muy difícil |       15 |
 
 Cada número válido que el jugador introduce y que todavía no había sido descartado consume un intento.
 
@@ -161,7 +174,6 @@ Por ejemplo:
 Estoy pensando en un número entre el 1 y el 9. Tienes 5 intentos.
 
 ¿Cuál es el número?
-
 3
 
 Incorrecto, el número es mayor.
@@ -172,7 +184,6 @@ Los números repetidos no consumen un intento:
 
 ```text
 ¿Cuál es el número?
-
 3
 
 Ya dijiste este número.
@@ -180,18 +191,124 @@ Ya dijiste este número.
 
 Tampoco se consume un intento cuando el jugador introduce un valor fuera del rango permitido o una entrada que no sea numérica.
 
+Los intentos restantes también tienen importancia dentro del sistema de puntuación, ya que cada intento conservado proporciona puntos adicionales al finalizar la partida.
+
 Si el jugador utiliza todos sus intentos sin encontrar el número secreto, la partida termina:
 
 ```text
 ¡Perdiste!
-
 Te has quedado sin intentos.
 El número era 742.
 ```
 
+## 🏆 Sistema de puntuación
+
+El juego cuenta con un sistema de puntuación que recompensa al jugador según su rendimiento durante la partida.
+
+La puntuación depende de tres elementos:
+
+* La dificultad seleccionada.
+* La cantidad de intentos restantes.
+* La cantidad de pistas utilizadas.
+
+Cada dificultad proporciona una cantidad diferente de puntos base:
+
+| Dificultad     | Puntos base |
+| -------------- | ----------: |
+| 🟢 Fácil       |         500 |
+| 🟡 Medio       |       1.000 |
+| 🟠 Difícil     |       2.000 |
+| 🔴 Muy difícil |       4.000 |
+
+Esto permite recompensar las partidas realizadas en dificultades más altas.
+
+### Cálculo de la puntuación
+
+La puntuación se calcula mediante la función:
+
+```python
+def calcular_puntos(puntos_base, intentos_restantes, pistas_usadas):
+    return puntos_base + (intentos_restantes * 100) - (pistas_usadas * 50)
+```
+
+La fórmula utilizada es:
+
+```text
+Puntuación =
+Puntos base
++ (Intentos restantes × 100)
+- (Pistas utilizadas × 50)
+```
+
+Por lo tanto:
+
+* Cada intento restante proporciona **100 puntos adicionales**.
+* Cada pista utilizada resta **50 puntos**.
+* Las dificultades más altas proporcionan una mayor puntuación base.
+
+### Ejemplo
+
+Supongamos una partida en dificultad **Media**:
+
+```text
+Puntos base: 1000
+Intentos restantes: 1
+Pistas utilizadas: 1
+```
+
+El cálculo sería:
+
+```text
+1000 + (1 × 100) - (1 × 50)
+= 1050 puntos
+```
+
+El resultado mostrado sería:
+
+```text
+¡Correcto! 🎉
+¡Ganaste!
+Lo lograste en 7 intentos.
+Puntos: 1050
+```
+
+Otro ejemplo en dificultad **Muy difícil**:
+
+```text
+Puntos base: 4000
+Intentos restantes: 11
+Pistas utilizadas: 0
+```
+
+La puntuación obtenida sería:
+
+```text
+4000 + (11 × 100) - (0 × 50)
+= 5100 puntos
+```
+
+Por lo tanto:
+
+```text
+¡Correcto! 🎉
+¡Ganaste!
+Lo lograste en 4 intentos.
+Puntos: 5100
+```
+
+De esta manera, el sistema no recompensa únicamente encontrar el número secreto, sino también hacerlo de forma eficiente.
+
 ## 💡 Sistema de pistas
 
 Después de cada **5 intentos**, el programa genera una pista aleatoria.
+
+Cada pista recibida incrementa un contador:
+
+```python
+cant_pistas += 1
+```
+
+Este contador también se utiliza posteriormente para calcular la puntuación final.
 
 Actualmente existen **8 tipos diferentes de pistas**.
 
@@ -237,17 +354,8 @@ También puede indicar:
 
 ```text
 PISTA: Estás cerca
-```
-
-```text
 PISTA: Estás un poco lejos
-```
-
-```text
 PISTA: Estás lejos
-```
-
-```text
 PISTA: Estás muy lejos
 ```
 
@@ -256,7 +364,7 @@ PISTA: Estás muy lejos
 Genera dos números, uno menor y otro mayor que el número secreto:
 
 ```text
-PISTA: El número está entre 327 y 764.
+PISTA: El número está entre 327 y 764
 ```
 
 Los dos números utilizados para establecer el rango se agregan a los números descartados.
@@ -273,7 +381,7 @@ PISTA: El número tiene 4 dígitos
 
 Selecciona aleatoriamente una posición del número secreto y muestra información sobre ese dígito.
 
-Puede indicar que:
+Puede indicar:
 
 ```text
 PISTA: El número empieza en 4
@@ -349,12 +457,6 @@ def mostrar_descartados(numeros_descartados):
     )
 ```
 
-La lista se mantiene ordenada utilizando:
-
-```python
-sort()
-```
-
 Si el jugador intenta introducir un número que ya fue descartado, el programa muestra:
 
 ```text
@@ -379,7 +481,6 @@ Si el jugador introduce texto:
 
 ```text
 ¿Cuál es el número?
-
 hola
 ```
 
@@ -445,15 +546,6 @@ def mostrar_resultados(color, texto):
     print(f"{color}{texto}{configuracion.RESET}")
 ```
 
-Esto permite utilizarla de forma sencilla:
-
-```python
-mostrar_resultados(
-    configuracion.VERDE,
-    "¡Correcto! 🎉"
-)
-```
-
 ## 🧠 Conceptos de Python utilizados
 
 Este proyecto permite practicar diferentes conceptos fundamentales de Python.
@@ -498,12 +590,15 @@ Este proyecto permite practicar diferentes conceptos fundamentales de Python.
 * Generación aleatoria de pistas.
 * Selección aleatoria del tipo de pista.
 
-### Operadores
+### Operadores y cálculos
 
 * Operadores de comparación.
 * Operadores lógicos.
 * Operador módulo `%`.
 * `abs()` para calcular distancias.
+* Operaciones aritméticas.
+* Cálculo de puntuaciones.
+* Bonificaciones y penalizaciones.
 
 El operador módulo se utiliza para determinar cuándo corresponde mostrar una pista:
 
@@ -520,8 +615,6 @@ nums_string = ", ".join(
     str(numero) for numero in numeros_descartados
 )
 ```
-
-Esto permite mostrar la lista de forma más legible en la terminal.
 
 ### Modularización
 
@@ -545,28 +638,26 @@ Durante el desarrollo se realizaron varias mejoras para organizar el código y r
 
 ### Función `mostrar_resultados()`
 
-Se creó una función para centralizar la impresión de mensajes con colores:
-
-```python
-def mostrar_resultados(color, texto):
-    print(f"{color}{texto}{configuracion.RESET}")
-```
+Centraliza la impresión de mensajes con colores.
 
 ### Función `validar_entrada()`
 
-La validación de los números introducidos por el jugador fue separada de la función principal `jugar()`.
-
-Esto permite que `jugar()` se concentre en la lógica de la partida.
+Separa la validación de los números introducidos por el jugador de la función principal `jugar()`.
 
 ### Función `mostrar_descartados()`
 
-La responsabilidad de ordenar y mostrar los números descartados también fue separada:
+Se encarga de ordenar y mostrar los números descartados.
+
+### Función `calcular_puntos()`
+
+Se agregó una función específica para calcular la puntuación:
 
 ```python
-mostrar_descartados(numeros_descartados)
+def calcular_puntos(puntos_base, intentos_restantes, pistas_usadas):
+    return puntos_base + (intentos_restantes * 100) - (pistas_usadas * 50)
 ```
 
-Esto evita repetir el código encargado de convertir la lista en una cadena y mostrarla.
+Esto permite mantener el cálculo separado de la lógica principal de la partida y facilita modificar el sistema de puntuación en el futuro.
 
 ### Separación del sistema de pistas
 
@@ -580,23 +671,21 @@ generar_pistas()
 
 se encarga de generar la pista y devolver la lista actualizada de números descartados.
 
-De esta manera, `juego.py` no necesita conocer los detalles internos de cada tipo de pista.
-
 ## 🎮 Ejemplo
 
 ```text
 ================================
+
        ADIVINA EL NÚMERO
+
 ================================
 
 ¡Hola! ¿Cómo te llamas?
-
 Gabriel
 
 Hola Gabriel 👋
 
 ELIGE LA DIFICULTAD:
-
 1. FÁCIL
 2. MEDIO
 3. DIFÍCIL
@@ -604,61 +693,62 @@ ELIGE LA DIFICULTAD:
 
 4
 
-Estoy pensando en un número entre el 1 y el 8351.
-Tienes 15 intentos.
+Estoy pensando en un número entre el 1 y el 315. Tienes 15 intentos.
 
 ¿Cuál es el número?
+300
 
-8000
-
-Incorrecto, el número es menor.
+Incorrecto, el número es mayor.
 Te quedan 14 intentos.
 
-Números descartados: 8000
+Números descartados: 300
 
 ¿Cuál es el número?
-
-6000
+315
 
 Incorrecto, el número es menor.
 Te quedan 13 intentos.
 
-Números descartados: 6000, 8000
+Números descartados: 300, 315
 
 ¿Cuál es el número?
-
-5000
+310
 
 Incorrecto, el número es menor.
 Te quedan 12 intentos.
 
-Números descartados: 5000, 6000, 8000
+Números descartados: 300, 310, 315
 
-...
+¿Cuál es el número?
+305
 
-PISTA: el número es menor que 4500.
-
-Números descartados: 4500, 5000, 6000, 8000
+¡Correcto! 🎉
+¡Ganaste!
+Lo lograste en 4 intentos.
+Puntos: 5100
 ```
 
-El objetivo es utilizar la información proporcionada por el programa para ir reduciendo progresivamente las posibilidades hasta encontrar el número secreto.
+El objetivo es utilizar la información proporcionada por el programa para reducir progresivamente las posibilidades, encontrar el número secreto utilizando la menor cantidad de intentos posible y conseguir una puntuación más alta.
 
 ## 📊 Resultado de la partida
 
-Cuando el jugador encuentra el número secreto, el programa muestra un mensaje de victoria junto con la cantidad de intentos realizados:
+Cuando el jugador encuentra el número secreto, el programa muestra un mensaje de victoria, la cantidad de intentos realizados y la puntuación obtenida:
 
 ```text
 ¡Correcto! 🎉
 ¡Ganaste!
-
-Lo lograste en 12 intentos.
+Lo lograste en 4 intentos.
+Puntos: 5100
 ```
+
+La puntuación final depende del rendimiento obtenido durante la partida.
+
+Los intentos restantes aumentan la puntuación, mientras que las pistas utilizadas aplican una penalización.
 
 Si el jugador se queda sin intentos:
 
 ```text
 ¡Perdiste!
-
 Te has quedado sin intentos.
 El número era 742.
 ```
@@ -681,10 +771,13 @@ El proyecto puede continuar evolucionando a medida que se incorporen nuevos conc
 * [x] Evitar repetir números descartados.
 * [x] Generar pistas automáticamente cada 5 intentos.
 * [x] Agregar diferentes categorías de pistas.
+* [x] Crear un sistema de puntuación.
+* [x] Asignar diferentes puntos base según la dificultad.
+* [x] Agregar bonificación por intentos restantes.
+* [x] Agregar penalización por pistas utilizadas.
 
 ### Próximas mejoras
 
-* [ ] Crear un sistema de puntuación.
 * [ ] Guardar el mejor resultado.
 * [ ] Crear un sistema de récords.
 * [ ] Crear un menú principal.
@@ -723,6 +816,8 @@ Actualmente permite practicar:
 * Validación de rangos.
 * Sistema de intentos.
 * Sistema de pistas.
+* Sistema de puntuación.
+* Bonificaciones y penalizaciones.
 * Interfaz de consola.
 * Códigos ANSI.
 * Organización de la lógica de un programa.

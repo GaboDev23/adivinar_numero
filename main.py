@@ -39,7 +39,7 @@ while True:
             )
         continue
 
-    maximo, max_intentos = resultado
+    maximo, max_intentos, puntos_base = resultado
     break
 
-juego.jugar(maximo, max_intentos)
+juego.jugar(maximo, max_intentos, puntos_base)
